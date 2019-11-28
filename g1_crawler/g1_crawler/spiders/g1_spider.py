@@ -46,11 +46,11 @@ class g1Spyder(scrapy.Spider):
             print("Nothing to do here! Exiting...")
             exit(0)
         
-        # Request url comments for each page
-        number_of_pages = 2
+        # Request url comments for each page        
         for i in range(1,number_of_pages): 
             self.log("Crawling...")
-            yield response.follow(self.comments_url.replace('numero',"{}.json".format(i)), self.do_comments_analysis)
+            yield response.follow(self.comments_url.replace('numero',"{}.json".format(i)), 
+            self.do_comments_analysis)
 
     def do_comments_analysis(self,response):
         received_file = response.url.split('/')[-1]
@@ -61,9 +61,7 @@ class g1Spyder(scrapy.Spider):
         for i in range(len(jsonObj['itens'])):
             replies = jsonObj['itens'][i]['replies']
             userObj = jsonObj['itens'][i]['Usuario']
-            text = jsonObj['itens'][i]['texto']
-            
-            
+            text = jsonObj['itens'][i]['texto']                        
 
     def body_to_json(self,body):
         # Convert body response to json

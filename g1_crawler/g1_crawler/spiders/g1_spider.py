@@ -3,13 +3,15 @@ import scrapy
 import re
 from urllib.parse import quote
 from ast import literal_eval
+import freq_words
+
 class g1Spyder(scrapy.Spider):
     name = "crawler"
 
     def start_requests(self):
-        # Define your URLs here 
+        # Put your URLs here 
         urls = ['https://g1.globo.com/natureza/noticia/2019/11/28/terras-indigenas-tem-alta-de-74percent-no-desmatamento-area-mais-afetada-protege-povo-isolado.ghtml']
-        # URL for get comments
+        # URL for get comments (Do not change)
         self.comments_url = "https://comentarios.globo.com/comentarios/{0}/{1}/{2}/shorturl/{3}/"        
         # Iterates for each URL
         for url in urls:
@@ -31,7 +33,7 @@ class g1Spyder(scrapy.Spider):
         except Exception as err:
             print(err)
             exit(1)
-        # /numero endpoint returns the number of comments in the page.
+        # /numero endpoint returns the number of comments in the page. 
         self.comments_url = self.comments_url.format(comments_uri, external_id, cannonical_url, title)+"numero"        
         yield response.follow(self.comments_url, self.get_comments)        
 
@@ -45,10 +47,11 @@ class g1Spyder(scrapy.Spider):
         if number_of_pages == 0:
             print("Nothing to do here! Exiting...")
             exit(0)
-        
+        self.log("Found {} pages".format(number_of_pages))
         # Request url comments for each page        
-        for i in range(1,number_of_pages): 
+        for i in range(1,number_of_pages+1): 
             self.log("Crawling...")
+            # Follow url comments link
             yield response.follow(self.comments_url.replace('numero',"{}.json".format(i)), 
             self.do_comments_analysis)
 
@@ -58,11 +61,19 @@ class g1Spyder(scrapy.Spider):
         ori_body = response.body.decode()
         jsonObj = self.body_to_json(ori_body)
         
+        word_token = ""
+
         for i in range(len(jsonObj['itens'])):
             replies = jsonObj['itens'][i]['replies']
             userObj = jsonObj['itens'][i]['Usuario']
-            text = jsonObj['itens'][i]['texto']                        
-
+            text = jsonObj['itens'][i]['texto']        
+            for rep in replies:
+                text = rep['texto']
+                if text:
+                    word_token += text
+            word_token += text
+        # Show word frequency 
+        freq_words.freq_words(word_token.split())
     def body_to_json(self,body):
         # Convert body response to json
         body = body.split('({')[1].split('})')[0]

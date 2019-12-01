@@ -4,6 +4,7 @@ import re
 from urllib.parse import quote
 from ast import literal_eval
 import freq_words
+from utils import *
 
 class g1Spyder(scrapy.Spider):
     name = "crawler"
@@ -39,7 +40,7 @@ class g1Spyder(scrapy.Spider):
 
     def get_comments(self,response):
         ori_body = response.body.decode()
-        jsonObj = self.body_to_json(ori_body)
+        jsonObj = body_to_json(ori_body)
 
         number_of_comments = jsonObj['numeroDeComentarios']
         number_of_pages = jsonObj['limitePaginas']
@@ -59,10 +60,10 @@ class g1Spyder(scrapy.Spider):
         received_file = response.url.split('/')[-1]
         self.log("Received file {}".format(received_file))
         ori_body = response.body.decode()
-        jsonObj = self.body_to_json(ori_body)
+        jsonObj = body_to_json(ori_body)
         
+        # String for save 
         word_token = ""
-
         for i in range(len(jsonObj['itens'])):
             replies = jsonObj['itens'][i]['replies']
             userObj = jsonObj['itens'][i]['Usuario']
@@ -70,15 +71,8 @@ class g1Spyder(scrapy.Spider):
             for rep in replies:
                 text = rep['texto']
                 if text:
-                    word_token += text
-            word_token += text
-        # Show word frequency 
+                    word_token += text.lower()
+            word_token += text.lower()
+        # Show words frequency 
         freq_words.freq_words(word_token.split())
-    def body_to_json(self,body):
-        # Convert body response to json
-        body = body.split('({')[1].split('})')[0]
-        body = eval("{"+body.replace('false', 'False')
-        .replace('true','True')
-        .replace('null',"False")+"}")
-
-        return body
+    

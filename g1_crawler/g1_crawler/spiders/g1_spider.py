@@ -11,7 +11,7 @@ class g1Spyder(scrapy.Spider):
 
     def start_requests(self):
         # Put your URLs here 
-        urls = ['https://g1.globo.com/natureza/noticia/2019/11/28/terras-indigenas-tem-alta-de-74percent-no-desmatamento-area-mais-afetada-protege-povo-isolado.ghtml']
+        urls = ['https://g1.globo.com/df/distrito-federal/noticia/2020/01/11/zoologico-de-brasilia-recebe-maior-especie-de-cobra-do-mundo.ghtml']
         # URL for get comments (Do not change)
         self.comments_url = "https://comentarios.globo.com/comentarios/{0}/{1}/{2}/shorturl/{3}/"        
         # Iterates for each URL
@@ -71,8 +71,9 @@ class g1Spyder(scrapy.Spider):
             for rep in replies:
                 text = rep['texto']
                 if text:
-                    word_token += text.lower()
+                    word_token += text.lower()+"\n"    
             word_token += text.lower()
+        save_in(received_file, word_token)
         # Show words frequency 
         freq_words.freq_words(word_token.split())
     
